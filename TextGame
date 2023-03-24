@@ -1,0 +1,17 @@
+from numpy import array
+
+ACTIONS = ("quit", "grab", "move", "use")
+
+MOVEMENT = {"north":array([1,0,0])}
+			"south":array([-1,0,0])
+			"east":array([0,1,0])
+			"west":array([0,-1,0])
+			"up":array([0,0,1])
+			"down":array([0,0,-1])
+
+class Player():
+	def __init__(self):
+		self.position = (0,0,0)
+		self.inventory = []
+	
+	def move(self, MOVEMENT)
