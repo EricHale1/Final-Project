@@ -1,6 +1,6 @@
 from numpy import array
 
-ACTIONS = ("quit", "grab", "move", "use")
+ACTIONS = ("quit", "grab", "move", "use", "actions")
 
 MOVEMENT = {"north":array([1,0,0])}
 			"south":array([-1,0,0])
@@ -14,4 +14,16 @@ class Player():
 		self.position = (0,0,0)
 		self.inventory = []
 	
-	def move(self, MOVEMENT)
+	def move(self,MOVEMENT)
+		self.position = tuple(array(self.position))
+
+class Rooms():
+	def __init__(self):
+		self.description =
+		self.room_items = 
+		self.room_movements = 
+
+def valid_input():
+	response = input("What do you want to do?")
+	if response not in ACTIONS:
+		print(f'{ACTIONS}')
