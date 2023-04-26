@@ -2,28 +2,45 @@ from numpy import array
 
 ACTIONS = ("quit", "grab", "move", "use", "actions")
 
-MOVEMENT = {"north":array([1,0,0])}
-			"south":array([-1,0,0])
-			"east":array([0,1,0])
-			"west":array([0,-1,0])
-			"up":array([0,0,1])
-			"down":array([0,0,-1])
+MOVEMENT = {
+	"north" : array([1,0,0]),
+	"south" : array([-1,0,0]),
+	"east" : array([0,1,0]),
+	"west" : array([0,-1,0]),
+	"up" : array([0,0,1]),
+	"down" : array([0,0,-1]),
+	}
 
 class Player():
 	def __init__(self):
 		self.position = (0,0,0)
 		self.inventory = []
+		print("You wake up in a desolate area with nobody around.")
 	
-	def move(self,MOVEMENT)
+	def move(self,MOVEMENT):
 		self.position = tuple(array(self.position))
 
 class Rooms():
 	def __init__(self):
-		self.description =
-		self.room_items = 
-		self.room_movements = 
+		self.description = {}
+		self.room_items = []
+		self.room_movements = []
+		self.usable_items = {}
+
+rooms = {
+	"barracks" : "You enter a large room that was evacuated quickly. The beds are not made and personal belongings are strewn about."
+	"booth" : "You enter a small, dusty guard's booth that seems familiar."
+	"armory" : "You enter a room that has a section locked behind a gate. There is a tall shelf stocked with boxes on your right."
+	}
+
+barracks_room = Rooms()
+booth_room = Rooms()
+armory_room = Rooms()
 
 def valid_input():
 	response = input("What do you want to do?")
-	if response not in ACTIONS:
-		print(f'{ACTIONS}')
+	while response.lower() not in ACTIONS:
+		print(f'Actions: {ACTIONS}')
+
+if __name__ = "__TextGame__":
+	TextGame()
