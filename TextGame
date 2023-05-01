@@ -1,21 +1,21 @@
 from numpy import array
 
-ACTIONS = ("quit", "grab", "move", "use", "actions")
+
+ACTIONS = ("move", "search", "grab", "use", "save", "load", "quit")
 
 MOVEMENT = {
-	"north" : array([1,0,0]),
-	"south" : array([-1,0,0]),
-	"east" : array([0,1,0]),
-	"west" : array([0,-1,0]),
-	"up" : array([0,0,1]),
-	"down" : array([0,0,-1]),
+	"north" : array([1,0]),
+	"south" : array([-1,0]),
+	"east" : array([0,1]),
+	"west" : array([0,-1]),
 	}
 
 class Player():
 	def __init__(self):
-		self.position = (0,0,0)
+		self.position = (0,0)
 		self.inventory = []
-		print("You wake up in a desolate area with nobody around.")
+		print("You wake up on a barren road with ruined buildings adjacent to you.")
+		print("Your head is throbbing from a previous injury.")
 	
 	def move(self,MOVEMENT):
 		self.position = tuple(array(self.position))
@@ -24,23 +24,102 @@ class Rooms():
 	def __init__(self):
 		self.description = {}
 		self.room_items = []
-		self.room_movements = []
 		self.usable_items = {}
+		self.possible_movements = []
+		self.searchable_items = {}
 
-rooms = {
-	"barracks" : "You enter a large room that was evacuated quickly. The beds are not made and personal belongings are strewn about."
-	"booth" : "You enter a small, dusty guard's booth that seems familiar."
-	"armory" : "You enter a room that has a section locked behind a gate. There is a tall shelf stocked with boxes on your right."
-	}
+	def search(self, player):
+		to_search = input("What do you want to search?").lower()
+		if to_search in self.searchable_items:
+			print(self.searchable_items[to_search])
+		else:
+			print(f"That item can't be searched. You could look through these:\n{self.searchable_items}")
 
-barracks_room = Rooms()
-booth_room = Rooms()
-armory_room = Rooms()
+	def grab_item(self, player):
+		to_grab = input("What item do you want to get?").lower()
+		if to_grab in self.room_items:
+			print(f"{to_grab} added to inventory")
+			player.inventory.append(to_grab)
+			self.room_items.remove(to_grab)
+		else:
+			print(f"You cannot pick up {to_grab}")
+	
+	def use_item(self, player):
+		use = input("What item do you want to use?").lower()
+		if use in player.inventory:
+			if use in self.usable_items:
+				player.inventory.remove(use)
+				print(self.usable_items[use])
+				#Add code to actually use item
+			else:
+				print(f"{use} cannot be used here.")
+		else: print(f"{use} is not in your inventory!")
 
-def valid_input():
+		if use not in player.inventory:
+			print(f"Your inventory: {player.inventory}")
+		if use not in self.usable_items:
+			print(f"{use} cannot be used here.")
+	
+	def room_description(self):
+	
+	def movement(self, player):
+
+def player_input():
 	response = input("What do you want to do?")
 	while response.lower() not in ACTIONS:
 		print(f'Actions: {ACTIONS}')
+	return response
 
-if __name__ = "__TextGame__":
-	TextGame()
+room_descriptions = {
+	"barracks" : "You enter a large room that was evacuated quickly. The beds are not made and personal belongings are strewn about. There is a jacket hanging on someone's bedframe. A strange box is sitting in the back of the room." ,
+	"booth" : "You enter a small, dusty guard's booth that seems familiar. You notice a control panel ahead of you and a filing cabinet on your left." , 
+	"armory" : "You enter a room that has a section locked behind a gate. There is a tall shelf stocked with boxes on your right." ,
+	"road" : "You are on a dusty, vacant road. The sun is beating down on the back of your neck."
+	}
+
+room_locations = {}
+
+road_room = Rooms()
+room_locations[0,0] = road_room
+
+booth_room = Rooms()
+booth_room.room_items.append("keycard")
+booth_room.searchable_items["control panel"] = "You run your hands over the switches and feel a small keycard lodged in a crevice."
+booth_room.searchable_items["filing cabinet"] = "You search through the drawers of the filing cabinet and find nothing but some old papers."
+room_locations[-1,0] = booth_room
+
+armory_room = Rooms()
+armory_room.room_items.append("key")
+armory_room.searchable_items["shelf"] = "You open a few boxes on the shelf and find them empty."
+armory_room.usable_items["keycard"] = "You use the keycard to unlock the metal door."
+room_locations[0,1] = armory_room
+
+barracks_room = Rooms()
+barracks_room.possible_movements.append('up')
+barracks_room.searchable_items["jacket"] = "You feel through the pockets of the jacket and only find some change and a gum wrapper."
+barracks_room.searchable_items["box"] = "The box is locked shut. Maybe you could find a key."
+barracks_room.usable_items["key"] = "You use the key to unlock the box."
+room_locations[1,0] = barracks_room
+
+player = Player()
+def main(player):
+	choice = ''
+	while choice != "quit":
+		choice = player_input()
+		if choice = "quit":
+			print("Thank you for playing!")
+		elif choice = "save":
+			pass
+		elif choice = "load":
+			pass
+		elif choice = "move":
+			pass
+		elif choice = "search":
+			pass
+		elif choice = "grab":
+			pass
+		elif choice = "use":
+			pass
+
+if __name__ == "__TextGame__":
+	main(player)
