@@ -16,8 +16,6 @@ class Player():
 		self.inventory = []
 		print("Your head is throbbing from a previous injury.")
 	
-	#def move(self,MOVEMENT):
-		#self.position = tuple(array(self.position))
 
 class Rooms():
 	def __init__(self):
@@ -28,14 +26,17 @@ class Rooms():
 		self.searchable_items = {}
 
 	def search(self, player):
-		to_search = input("What do you want to search?").lower()
 		searched_items = ()
-		if to_search in self.searchable_items:
-			print(self.searchable_items[to_search])
-			if to_search == "control panel":
-				searched_items.append("keycard")
+		if not self.searchable_items:
+			to_search = input("What do you want to search?\n").lower()	
+			if to_search in self.searchable_items:
+				print(self.searchable_items[to_search])
+				if to_search == "control panel":
+					searched_items.append("keycard")
+			else:
+				print(f"That item can't be searched. You could look through these:\n{self.searchable_items}")
 		else:
-			print(f"That item can't be searched. You could look through these:\n{self.searchable_items}")
+			print("You can't search anything here.")
 		return searched_items
 
 	def grab_item(self, player, searched_items):
@@ -67,23 +68,7 @@ class Rooms():
 			print(f"{use} cannot be used here.")
 		
 	def movement(self, player, MOVEMENT):
-		print(f'You can go: {self.possible_movements}')
-		go = input("Where do you want to go?\n")
-		if go in MOVEMENT:
-			if go in self.possible_movements:
-				player.position = direction
-			else: print(f'You cannot move {go} here.')
-		else:
-			print(f'{go} is not a possible direction.')
-		
-		@property
-		def position(self):
-			return tuple(self.__position)
-		
-		@property.setter
-		def position(self, add):
-			self.__position += add
-		
+		#Setup
 		if player.position == (0,0):
 			print("You are on a dusty, vacant road. The sun is beating down on the back of your neck.")
 		#Road
@@ -97,11 +82,28 @@ class Rooms():
 			print("You enter a large barracks room that was evacuated quickly. The beds are not made and personal belongings are strewn about. There is a jacket hanging on someone's bedframe. A strange box is sitting in the back of the room.")
 		#Barracks
 
+		print(f'You can go: {self.possible_movements}')
+		go = input("Where do you want to go?\n")
+		if go in MOVEMENT:
+			if go in self.possible_movements:
+				player.position = go
+			else: print(f'You cannot move {go} here.')
+		else:
+			print(f'{go} is not a possible direction.')
+		
+		@property
+		def position(self):
+			return tuple(self.__position)
+		
+		@position.setter
+		def position(self, add):
+			self.__position += add
+
 def player_input():
 	response = ''
 	while response.lower() not in ACTIONS:
-		response = input("What do you want to do?\n")
 		print(f'Actions: {ACTIONS}')
+		response = input("What do you want to do?\n")
 	return response
 
 rooms = {}
@@ -146,13 +148,13 @@ def main(player, road_room, booth_room, armory_room, barracks_room):
 		elif choice == "load":
 			pass
 		elif choice == "move":
-			Rooms.movement(self, player, MOVEMENT)
+			room.movement(player, room, MOVEMENT)
 		elif choice == "search":
-			Rooms.search(self, player)
+			room.search(player)
 		elif choice == "grab":
-			Rooms.grab_item(self, player, searched_items)
+			room.grab_item(self, player, searched_items)
 		elif choice == "use":
-			Rooms.use_item(self, player)
+			room.use_item(self, player)
 
 if __name__ == "__main__":
 	main(player, road_room, booth_room, armory_room, barracks_room)
