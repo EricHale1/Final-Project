@@ -16,8 +16,8 @@ class Player():
 		self.inventory = []
 		print("Your head is throbbing from a previous injury.")
 	
-	def move(self,MOVEMENT):
-		self.position = tuple(array(self.position))
+	#def move(self,MOVEMENT):
+		#self.position = tuple(array(self.position))
 
 class Rooms():
 	def __init__(self):
@@ -98,8 +98,9 @@ class Rooms():
 		#Barracks
 
 def player_input():
-	response = input("What do you want to do?")
+	response = ''
 	while response.lower() not in ACTIONS:
+		response = input("What do you want to do?\n")
 		print(f'Actions: {ACTIONS}')
 	return response
 
@@ -133,7 +134,7 @@ barracks_room.usable_items["key"] = "You use the key to unlock the box."
 rooms[(1,0)] = barracks_room
 
 player = Player()
-def main(player):
+def main(player, road_room, booth_room, armory_room, barracks_room):
 	choice = ''
 	while choice != "quit":
 		room = rooms.get(player.position, "Failed")
@@ -145,13 +146,13 @@ def main(player):
 		elif choice == "load":
 			pass
 		elif choice == "move":
-			movement()
+			Rooms.movement(self, player, MOVEMENT)
 		elif choice == "search":
-			search()
+			Rooms.search(self, player)
 		elif choice == "grab":
-			grab_item()
+			Rooms.grab_item(self, player, searched_items)
 		elif choice == "use":
-			use_item()
+			Rooms.use_item(self, player)
 
-if __name__ == "__TextGame__":
-	main(player)
+if __name__ == "__main__":
+	main(player, road_room, booth_room, armory_room, barracks_room)
