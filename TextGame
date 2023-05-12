@@ -31,31 +31,48 @@ class Rooms():
 			to_search = input("What do you want to search?\n").lower()	
 			if to_search in self.searchable_items:
 				print(self.search_descriptions[to_search])
+
 				if to_search == "filing cabinet":
-					self.room_items.append("old papers")
-					self.searched_items.append("old papers")
+					if "papers" not in self.searched_items:
+						self.room_items.append("papers")
+						self.searched_items.append("papers")
+
 				if to_search == 'control panel':
-					self.searched_items.append("keycard")
+					if "keycard" not in self.searched_items:
+						self.searched_items.append("keycard")
+
 				if to_search == "computer":
 					username = input("What is the username?\n").lower()
 					if username == "jimmy mcgill":
 						print("Suddenly, a series of numbers appear on the screen: 14761.")
 						self.computer_searched = True
+
 				if to_search == "locker":
 						code = input("What is the code to open the locker?\n")
 						if code == "14761":
-							print("You pull open the rusty locker and find a wallet and a key resting on the shelves.\nThere is a photo of a familiar child in the wallet.")
-							self.searched_items.append("key")
-							self.searched_items.append("wallet")
-							armory_room.room_items.append("wallet")
-							armory_room.room_items.append("key")
+							if "wallet" in player.inventory:
+								if "key" in player.inventory:
+									if self.box_open == False:
+										print("You pull open the rusty locker and find a wallet and a key resting on the shelves.\nThere is a photo of a familiar child in the wallet.")
+										self.searched_items.append("key")
+										self.searched_items.append("wallet")
+										armory_room.room_items.append("wallet")
+										armory_room.room_items.append("key")
+									else:
+										print("You pull open the rusty locker and find a wallet resting on the shelves.\nThere is a photo of a familiar child in the wallet.")
+							else:
+								print("You pull open the rusty locker and find a key resting on a shelf.")
 						else:
 							print("That wasn't the correct code!")
+
 				if to_search == "shelf":
-					self.searched_items.append("canned peaches")
-					self.room_items.append("canned peaches")
+					if "canned peaches" not in self.searched_items:
+						self.searched_items.append("canned peaches")
+						self.room_items.append("canned peaches")
+
 				if to_search == "suitcase":
 					self.searched_items.append("suitcase")
+
 				if to_search == "jacket":
 					self.searched_items.append("change")
 				
@@ -177,15 +194,13 @@ booth_room = Rooms()
 booth_room.room_items.append("keycard")
 booth_room.searchable_items.append("control panel")
 booth_room.searchable_items.append("filing cabinet")
-booth_room.search_descriptions["control panel"] = "You run your hands over the switches and feel a small keycard lodged in a crevice."
 booth_room.search_descriptions["filing cabinet"] = "You search through the drawers of the filing cabinet and find nothing but some old papers."
 rooms["booth"] = booth_room
 
 armory_room = Rooms()
 armory_room.searchable_items.append("shelf")
-armory_room.search_descriptions["shelf"] = "You open a few boxes on the shelf and find a stock of canned peaches."
 armory_room.searchable_items.append("gate")
-armory_room.search_descriptions["gate"] = "You notice that the gate has a keycard scanner. Maybe you could find something to open it."
+
 rooms["armory"] = armory_room
 
 barracks_room = Rooms()
@@ -200,19 +215,32 @@ barracks_room.use_descriptions["key"] = "You use the key to unlock the keyhole i
 rooms["barracks"] = barracks_room
 
 
-def random(armory_room, barracks_room, booth_room, player):
+def leftover(armory_room, barracks_room, booth_room, player):
 	if "keycard" in booth_room.searched_items:
+		booth_room.search_descriptions["control panel"] = "You run your hands over the switches and feel a sense of deja vu."
 		armory_room.usable_items.append("keycard")
 		armory_room.use_descriptions["keycard"] = "You slide the keycard through the scanner and the gate clicks open. You enter the locked room and see a rusty locker on your left."
+	else:
+		booth_room.search_descriptions["control panel"] = "You run your hands over the switches and feel a small keycard lodged in a crevice."
 
 	if "suitcase" in barracks_room.searched_items:
 		barracks_room.searchable_items.append("notebook")
+
 	if "change" in barracks_room.searched_items:
-		barracks_room.room_items.append("change")
+		if "change" not in player.inventory:
+			barracks_room.room_items.append("change")
+
+	if "canned peaches" not in armory_room.searched_items:
+		armory_room.search_descriptions["shelf"] = "You open a few boxes on the shelf and find a stock of canned peaches."
+	else:
+		armory_room.search_descriptions["shelf"] = "There are a few empty, open boxes on the shelf."
 
 	if armory_room.gate_open == True:
 		armory_room.searchable_items.append("locker")
 		armory_room.search_descriptions["locker"] = "You see that the locker is locked with a combination lock. Maybe you can find a code."
+		armory_room.search_descriptions["gate"] = "The gate to the locked section is open."
+	else: 
+		armory_room.search_descriptions["gate"] = "You notice that the gate has a keycard scanner. Maybe you could find something to open it."
 	
 	if "key in player.inventory":
 		barracks_room.usable_items.append("key")
@@ -264,6 +292,6 @@ def main(player):
 		elif choice == "inventory":
 			player.show_inventory()
 
-		random(armory_room, barracks_room, booth_room, player)
+		leftover(armory_room, barracks_room, booth_room, player)
 if __name__ == "__main__":
 	main(player)
