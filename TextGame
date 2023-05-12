@@ -1,5 +1,5 @@
+import pickle
 from numpy import array
-
 
 ACTIONS = ("move", "search", "grab", "use", "inventory", "save", "load", "quit")
 
@@ -31,9 +31,11 @@ class Rooms():
 			to_search = input("What do you want to search?\n").lower()	
 			if to_search in self.searchable_items:
 				print(self.search_descriptions[to_search])
+				if to_search == "filing cabinet":
+					self.room_items.append("old papers")
+					self.searched_items.append("old papers")
 				if to_search == 'control panel':
 					self.searched_items.append("keycard")
-					self.searched_items.append("old papers")
 				if to_search == "computer":
 					username = input("What is the username?\n").lower()
 					if username == "jimmy mcgill":
@@ -51,6 +53,7 @@ class Rooms():
 							print("That wasn't the correct code!")
 				if to_search == "shelf":
 					self.searched_items.append("canned peaches")
+					self.room_items.append("canned peaches")
 				if to_search == "suitcase":
 					self.searched_items.append("suitcase")
 				if to_search == "jacket":
@@ -130,15 +133,33 @@ def player_input():
 	return response
 
 def save():
-	with open("save.dat", "wb") as f:
+	with open("game.dat", "wb") as f:
 		pickle.dump(player, f)
 		pickle.dump(rooms, f)
 		pickle.dump(hospital_room, f)
 		pickle.dump(booth_room, f)
 		pickle.dump(armory_room, f)
 		pickle.dump(barracks_room, f)
+	print("Your game has been saved.")
 
 def load():
+	global player
+	global rooms
+	global hospital_room
+	global booth_room
+	global armory_room
+	global barracks_room
+	try:
+		with open ("game.dat", "rb") as f:
+			player = pickle.load(f)
+			rooms = pickle.load(f)
+			hospital_room = pickle.load(f)
+			booth_room = pickle.load(f)
+			armory_room = pickle.load(f)
+			barracks_room = pickle.load(f)
+		print("Your game has been loaded.")
+	except FileNotFoundError:
+		print("You don't have a game file saved.")
 
 rooms = {}
 
@@ -183,16 +204,11 @@ def random(armory_room, barracks_room, booth_room, player):
 	if "keycard" in booth_room.searched_items:
 		armory_room.usable_items.append("keycard")
 		armory_room.use_descriptions["keycard"] = "You slide the keycard through the scanner and the gate clicks open. You enter the locked room and see a rusty locker on your left."
-	if "filing cabinet" in booth_room.searched_items:
-		booth_room.room_items.append("old papers")
 
 	if "suitcase" in barracks_room.searched_items:
 		barracks_room.searchable_items.append("notebook")
 	if "change" in barracks_room.searched_items:
 		barracks_room.room_items.append("change")
-
-	if "peaches" in armory_room.searched_items:
-		armory_room.room_items.append("canned peaches")
 
 	if armory_room.gate_open == True:
 		armory_room.searchable_items.append("locker")
@@ -227,16 +243,16 @@ def main(player):
 		elif player.position == 4:
 			r = "hospital"
 
-		rooms[r].usable_items.append("peaches")
-		rooms[r].use_descriptions["peaches"] = "You eat the can of peaches and feel rejuvinated."
+		rooms[r].usable_items.append("canned peaches")
+		rooms[r].use_descriptions["canned peaches"] = "You eat the can of peaches and feel rejuvinated."
 
 		choice = player_input()
 		if choice == "quit":
 			print("Thank you for playing!")
 		elif choice == "save":
-			pass
+			save()
 		elif choice == "load":
-			pass
+			load()
 		elif choice == "move":
 			rooms[r].movement(player, rooms)
 		elif choice == "search":
