@@ -1,4 +1,4 @@
-import pickle
+import shelve
 from numpy import array
 
 ACTIONS = ("move", "search", "grab", "use", "inventory", "save", "load", "quit")
@@ -150,14 +150,26 @@ def player_input():
 	return response
 
 def save():
-	with open("game.dat", "wb") as f:
-		pickle.dump(player, f)
-		pickle.dump(rooms, f)
-		pickle.dump(hospital_room, f)
-		pickle.dump(booth_room, f)
-		pickle.dump(armory_room, f)
-		pickle.dump(barracks_room, f)
+	global player
+	global rooms
+	global hospital_room
+	global booth_room
+	global armory_room
+	global barracks_room
+
+	f = shelve.open("save_file")
+	f["player"] = player
+	f["player_inventory"] = player.inventory
+	f["player_position"] = player.position
+	f["rooms"] = rooms
+	f["hospital"] = hospital_room
+	f["booth"] = booth_room
+	f["armory"] = armory_room
+	f["barracks"] = barracks_room
+
 	print("Your game has been saved.")
+
+	f.close()
 
 def load():
 	global player
@@ -166,15 +178,19 @@ def load():
 	global booth_room
 	global armory_room
 	global barracks_room
+
 	try:
-		with open ("game.dat", "rb") as f:
-			player = pickle.load(f)
-			rooms = pickle.load(f)
-			hospital_room = pickle.load(f)
-			booth_room = pickle.load(f)
-			armory_room = pickle.load(f)
-			barracks_room = pickle.load(f)
+		f = shelve.open("save_file")
+		player = f["player"]
+		player.inventory = f["player_inventory"]
+		player.position = f["player_position"]
+		rooms = f["rooms"]
+		hospital_room = f["hospital"]
+		booth_room = f["booth"]
+		armory_room = f["armory"]
+		barracks_room = f["barracks"]
 		print("Your game has been loaded.")
+		f.close()
 	except FileNotFoundError:
 		print("You don't have a game file saved.")
 
@@ -194,7 +210,6 @@ booth_room = Rooms()
 booth_room.room_items.append("keycard")
 booth_room.searchable_items.append("control panel")
 booth_room.searchable_items.append("filing cabinet")
-booth_room.search_descriptions["filing cabinet"] = "You search through the drawers of the filing cabinet and find nothing but some old papers."
 rooms["booth"] = booth_room
 
 armory_room = Rooms()
@@ -222,6 +237,11 @@ def leftover(armory_room, barracks_room, booth_room, player):
 		armory_room.use_descriptions["keycard"] = "You slide the keycard through the scanner and the gate clicks open. You enter the locked room and see a rusty locker on your left."
 	else:
 		booth_room.search_descriptions["control panel"] = "You run your hands over the switches and feel a small keycard lodged in a crevice."
+
+	if "papers" in booth_room.searched_items:
+		booth_room.search_descriptions["filing cabinet"] = "You search through the drawers of the filing cabinet and find them empty."
+	else:
+		booth_room.search_descriptions["filing cabinet"] = "You search through the drawers of the filing cabinet and find nothing but some old papers."
 
 	if "suitcase" in barracks_room.searched_items:
 		barracks_room.searchable_items.append("notebook")
