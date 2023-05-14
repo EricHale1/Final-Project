@@ -23,8 +23,9 @@ class Rooms():
 		self.searched_items = []
 		self.search_descriptions = {}
 		self.gate_open = False
-		self.box_open = False
 		self.computer_searched = False
+		self.box_open = False
+		self.key_inventory = True
 
 	def search(self, player):
 		if self.searchable_items:
@@ -48,23 +49,8 @@ class Rooms():
 						self.computer_searched = True
 
 				if to_search == "locker":
-						code = input("What is the code to open the locker?\n")
-						if code == "14761":
-							if "wallet" in player.inventory:
-								if "key" in player.inventory:
-									if self.box_open == False:
-										print("You pull open the rusty locker and find a wallet and a key resting on the shelves.\nThere is a photo of a familiar child in the wallet.")
-										self.searched_items.append("key")
-										self.searched_items.append("wallet")
-										armory_room.room_items.append("wallet")
-										armory_room.room_items.append("key")
-									else:
-										print("You pull open the rusty locker and find a wallet resting on the shelves.\nThere is a photo of a familiar child in the wallet.")
-							else:
-								print("You pull open the rusty locker and find a key resting on a shelf.")
-						else:
-							print("That wasn't the correct code!")
-
+					search_locker(armory_room, barracks_room, player)
+					
 				if to_search == "shelf":
 					if "canned peaches" not in self.searched_items:
 						self.searched_items.append("canned peaches")
@@ -103,6 +89,7 @@ class Rooms():
 				if use == "keycard":
 					self.gate_open = True
 				if use == "key":
+						print("Well done! You have found the things that remind you of your past. You won!")
 						self.box_open = True
 			else:
 				print(f"The {use} cannot be used here.")
@@ -142,57 +129,7 @@ class Rooms():
 		elif player.position == 4:
 			print("You enter a run-down makeshift hospital that has been looted.\nThere's a computer in the corner of the room and some bandages on an adjacent table.")
 
-def player_input():
-	response = ''
-	while response.lower() not in ACTIONS:
-		print(f'Actions: {ACTIONS}')
-		response = input("What do you want to do?\n")
-	return response
-
-def save():
-	global player
-	global rooms
-	global hospital_room
-	global booth_room
-	global armory_room
-	global barracks_room
-
-	f = shelve.open("save_file")
-	f["player"] = player
-	f["player_inventory"] = player.inventory
-	f["player_position"] = player.position
-	f["rooms"] = rooms
-	f["hospital"] = hospital_room
-	f["booth"] = booth_room
-	f["armory"] = armory_room
-	f["barracks"] = barracks_room
-
-	print("Your game has been saved.")
-
-	f.close()
-
-def load():
-	global player
-	global rooms
-	global hospital_room
-	global booth_room
-	global armory_room
-	global barracks_room
-
-	try:
-		f = shelve.open("save_file")
-		player = f["player"]
-		player.inventory = f["player_inventory"]
-		player.position = f["player_position"]
-		rooms = f["rooms"]
-		hospital_room = f["hospital"]
-		booth_room = f["booth"]
-		armory_room = f["armory"]
-		barracks_room = f["barracks"]
-		print("Your game has been loaded.")
-		f.close()
-	except FileNotFoundError:
-		print("You don't have a game file saved.")
+player = Player()
 
 rooms = {}
 
@@ -215,7 +152,6 @@ rooms["booth"] = booth_room
 armory_room = Rooms()
 armory_room.searchable_items.append("shelf")
 armory_room.searchable_items.append("gate")
-
 rooms["armory"] = armory_room
 
 barracks_room = Rooms()
@@ -225,10 +161,62 @@ barracks_room.searchable_items.append("box")
 barracks_room.search_descriptions["notebook"] = 'You leaf through the pages of the notebook and find a hurried journal entry reading, "Enemy is closing in. Leaving soon."' 
 barracks_room.search_descriptions["suitcase"] = 'You zip open the suitcase and find a notebook resting on top of some clothes.'
 barracks_room.search_descriptions["jacket"] = 'You feel through the pockets of the jacket and find some change and a dog tag with the name "Jimmy McGill" embedded on it.'
-barracks_room.search_descriptions["box"] = "The box is locked shut. Maybe you could find a key."
 barracks_room.use_descriptions["key"] = "You use the key to unlock the keyhole in the box."
 rooms["barracks"] = barracks_room
 
+def player_input():
+	response = ''
+	while response.lower() not in ACTIONS:
+		print(f'Actions: {ACTIONS}')
+		response = input("What do you want to do?\n")
+	return response
+
+def save():
+
+	global player
+	global rooms
+	global hospital_room
+	global booth_room
+	global armory_room
+	global barracks_room
+
+	f = shelve.open("save_file")
+	f["player"] = player
+	f["player_position"] = player.position
+	f["rooms"] = rooms
+	f["hospital"] = hospital_room
+	f["booth"] = booth_room
+	f["armory"] = armory_room
+	f["barracks"] = barracks_room
+
+	print("Your game has been saved.")
+
+	f.close()
+
+def load():
+
+	global player
+	global rooms
+	global hospital_room
+	global booth_room
+	global armory_room
+	global barracks_room
+
+	try:
+		f = shelve.open("save_file")
+		player = f["player"]
+		player.position = f["player_position"]
+		rooms = f["rooms"]
+		hospital_room = f["hospital"]
+		booth_room = f["booth"]
+		armory_room = f["armory"]
+		barracks_room = f["barracks"]
+
+		print("Your game has been loaded.")
+		f.close()
+
+	except FileNotFoundError:
+		print("You don't have a game file saved.")
 
 def leftover(armory_room, barracks_room, booth_room, player):
 	if "keycard" in booth_room.searched_items:
@@ -262,15 +250,35 @@ def leftover(armory_room, barracks_room, booth_room, player):
 	else: 
 		armory_room.search_descriptions["gate"] = "You notice that the gate has a keycard scanner. Maybe you could find something to open it."
 	
-	if "key in player.inventory":
-		barracks_room.usable_items.append("key")
-	
 	if barracks_room.box_open == True:
-		print("Well done! You have found the things that remind you of your past. You won!")
+		barracks_room.search_descriptions["box"] = "You look through the box and find some of your personal belongings that restore your sense of identity."
+	else:
+		barracks_room.search_descriptions["box"] = "The box is locked shut. Maybe you could find a key."
 	return armory_room, barracks_room, booth_room
 
-player = Player()
-def main(player):
+def search_locker(armory_room, barracks_room, player):
+	code = input("What is the code to open the locker?\n")
+	if code == "14761":
+		print("You pull open the rusty locker.")
+		if "wallet" not in player.inventory:
+			print("There is a wallet resting on one of the shelves. There is a photo of a familiar child in the wallet.")
+			armory_room.searched_items.append("wallet")
+			armory_room.room_items.append("wallet")
+		if "key" not in player.inventory:
+			if barracks_room.box_open == False:
+				print("There is a key resting on one of the shelves.")
+				armory_room.searched_items.append("key")
+				armory_room.room_items.append("key")
+			else:
+				if "wallet" in player.inventory:
+					print("The locker is empty.")
+		else:
+			if "wallet" in player.inventory:
+				print("The locker is empty.")
+	else:
+		print("That wasn't the correct code!")
+
+def main():
 	choice = ''
 
 	while choice != "quit":
@@ -314,4 +322,4 @@ def main(player):
 
 		leftover(armory_room, barracks_room, booth_room, player)
 if __name__ == "__main__":
-	main(player)
+	main()
